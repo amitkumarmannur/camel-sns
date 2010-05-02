@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import com.massfords.aws.sns.SNSUri;
 
-public class SubscribeByTopicArnAndQueueName extends AbstractUseCase {
+public class SubscribeByTopicArnAndQueueNameTest extends AbstractUseCase {
 
     /**
      * Create a topic in advance and then start the route with a queue name. The consumer

@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import com.massfords.aws.sns.SNSUri;
 
-public class SubscribeByTopicNameAndQueueName extends AbstractUseCase {
+public class SubscribeByTopicNameAndQueueNameTest extends AbstractUseCase {
 
     @Test
     public void test() throws Exception {

@@ -7,7 +7,7 @@ import org.junit.Test;
 
 import com.massfords.aws.sns.SNSUri;
 
-public class DeleteQueueOnStop extends DeleteUseCase {
+public class DeleteQueueOnStopTest extends DeleteUseCase {
 
     @Test
     public void test() throws Exception {
