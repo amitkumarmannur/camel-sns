@@ -52,7 +52,7 @@ If the queue is references by its ARN then it is assumed that the queue exists a
 The consumer will automatically unsubscribe from the topic once it is stopped.
 
 ==Topic/Queue deletion==
-The consumer will optionally delete the topic or queue when it is stopped. See the EndpointProperties page for info on controlling this and other behavior.
+The consumer will optionally delete the topic or queue when it is stopped. See the above for info on controlling this and other behavior with endpoint properties.
 
 ==Message Format==
 The component will unwrap the message payload from its JSON format and put the message field into the camel message payload and add all of the other fields as headers prefixed with "SNS:". The available properties on the message are as follow:
