@@ -1,0 +1,78 @@
+#summary List of the use cases that are supported
+
+= Endpoint URI =
+{{{
+sns://topicName/yourTopicName
+}}} 
+The scheme "sns" is mapped to the SNS component. The "topicName/" path is a flag that the value following the slash is a topic name. Alternatively, you can access topics by their Amazon Resource Name (ARN) as follows:
+
+{{{
+sns://arn:aws:sns:us-east-1:266383121696:yourTopicName
+}}} 
+
+= Endpoint Properties =
+== Common Properties ==
+|| *Property* || *Required* || *Default* || *Description* ||
+|| accessKey || yes || - || AWS access key ||
+|| secretKey || yes || - || AWS secret key ||
+|| deleteTopicOnStop || - || false || Deletes the topic when the component stops ||
+|| deleteQueueOnStop || - || false || Deletes the queue when the component stops ||
+
+== Consumer Only Properties ==
+|| *Property* || *Required* || *Default* || *Description* ||
+|| queueName || - || - || Name of the queue to use for the callback ||
+|| queueArn || - || - || SQS ARN to use for the callback ||
+|| idempotent || - || false || If true, consumer will avoid processing messages that it has already processed ||
+|| delay || - || 500 || Frequency of polling on the queue to check for new messages ||
+
+== Producer Only Properties ==
+|| *Property* || *Required* || *Default* || *Description* ||
+|| subject || - || - || subject to use for the message being sent ||
+
+= Consumer Use Cases =
+
+== Subscribing to a topic ==
+|| *Topic* || *Subscription Endpoint* ||
+|| topic name || SQS name ||
+|| topic name || SQS ARN ||
+|| topic ARN || SQS name ||
+|| topic ARN || SQS ARN ||
+
+=== Topic Permissions ===
+If the topic is referenced by its name then the caller is assumed to be the owner of the topic. The create topic API call is used to create the topic by name or return the topic if it already exists. 
+
+If the topic is referenced by its Amazon Resource Name (ARN) then it is assumed that the caller has access to subscribe to the topic.
+
+=== Queue Permissions ===
+The only supported subscriber endpoint at the moment is an Amazon Simple Queue Service (SQS). If the queue is referenced by its name, then the caller is assumed to be the owner of the queue. The create queue API call is used to create the queue by name or return the queue if it already exists. When the queue is created, its default policy is overridden to allow the SNS ARN to send messages to the queue.
+
+If the queue is references by its ARN then it is assumed that the queue exists and has sufficient permissions on it to receive messages from the topic.
+
+== Unsubscribing ==
+The consumer will automatically unsubscribe from the topic once it is stopped.
+
+==Topic/Queue deletion==
+The consumer will optionally delete the topic or queue when it is stopped. See the EndpointProperties page for info on controlling this and other behavior.
+
+==Message Format==
+The component will unwrap the message payload from its JSON format and put the message field into the camel message payload and add all of the other fields as headers prefixed with "SNS:". The available properties on the message are as follow:
+
+||SNS:MessageId|| A Universally Unique Identifier, unique for each notification published||
+||SNS:Timestamp|| The time (in GMT) at which the notification was published.||
+||SNS:TopicArn|| The topic to which this message was published||
+||SNS:Type|| The type of the delivery message, set to “Notification” for notification deliveries.||
+||SNS:UnsubscribeURL|| A link to unsubscribe the end-point from this topic, and prevent receiving any further notifications.||
+||SNS:Message|| The payload (body) of the message, as received from the publisher||
+||SNS:Subject|| The Subject field – if one was included as an optional parameter to the publish API call along with the message.||
+||SNS:Signature|| Base64-encoded “SHA1withRSA” signature of the Message, MessageId, Subject (if present), Type, Timestamp, and Topic values.||
+||SNS:SignatureVersion|| Version of the Amazon SNS signature used.||
+
+
+= Producer Use Cases =
+* Publish by topic name
+* Publish by topic ARN
+
+Add your content here.  Format your content with:
+  * Text in *bold* or _italic_
+  * Headings, paragraphs, and lists
+  * Automatic links to other wiki pages
