@@ -69,10 +69,5 @@ The component will unwrap the message payload from its JSON format and put the m
 
 
 = Producer Use Cases =
-* Publish by topic name
-* Publish by topic ARN
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+  * Publish by topic name
+  * Publish by topic ARN
