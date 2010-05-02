@@ -1,14 +1,19 @@
 #summary Overview of the basic functionality
 
-= Endpoint URI =
+= SNS Component = 
+The SNS component allows messages to be sent to or consumed from an Amazon Simple Notification Topic. The implementation of the Amazon API is provided by the [http://aws.amazon.com/sdkforjava/ AWS SDK].
+
+= URI Format =
 {{{
-sns://topicName/yourTopicName
+sns://topicName/yourTopicName?options
 }}} 
-The scheme "sns" is mapped to the SNS component. The "topicName/" path is a flag that the value following the slash is a topic name. Alternatively, you can access topics by their Amazon Resource Name (ARN) as follows:
+The "topicName/" path is a flag that the value following the slash is a topic name that should be created or one that already exists. Alternatively, you can access existing topics by their Amazon Resource Name (ARN) as follows:
 
 {{{
-sns://arn:aws:sns:us-east-1:266383121696:yourTopicName
+sns://arn:aws:sns:us-east-1:266383121696:yourTopicName?options
 }}} 
+
+You can append query options to the URI in the following format, ?options=value&option2=value&...
 
 = Endpoint Properties =
 == Common Properties ==
@@ -16,7 +21,6 @@ sns://arn:aws:sns:us-east-1:266383121696:yourTopicName
 || accessKey || yes || - || AWS access key ||
 || secretKey || yes || - || AWS secret key ||
 || deleteTopicOnStop || - || false || Deletes the topic when the component stops ||
-|| deleteQueueOnStop || - || false || Deletes the queue when the component stops ||
 
 == Consumer Only Properties ==
 || *Property* || *Required* || *Default* || *Description* ||
@@ -24,10 +28,11 @@ sns://arn:aws:sns:us-east-1:266383121696:yourTopicName
 || queueArn || - || - || SQS ARN to use for the callback ||
 || idempotent || - || false || If true, consumer will avoid processing messages that it has already processed ||
 || delay || - || 500 || Frequency of polling on the queue to check for new messages ||
+|| deleteQueueOnStop || - || false || Deletes the queue when the component stops ||
 
 == Producer Only Properties ==
 || *Property* || *Required* || *Default* || *Description* ||
-|| subject || - || - || subject to use for the message being sent ||
+|| subject || - || - || default subject to use for the message being sent if not overridden in the camel message header with "SNS:Subject"||
 
 = Consumer Use Cases =
 
@@ -44,7 +49,7 @@ If the topic is referenced by its name then the caller is assumed to be the owne
 If the topic is referenced by its Amazon Resource Name (ARN) then it is assumed that the caller has access to subscribe to the topic.
 
 === Queue Permissions ===
-The only supported subscriber endpoint at the moment is an Amazon Simple Queue Service (SQS). If the queue is referenced by its name, then the caller is assumed to be the owner of the queue. The create queue API call is used to create the queue by name or return the queue if it already exists. When the queue is created, its default policy is overridden to allow the SNS ARN to send messages to the queue.
+The only supported subscriber endpoint at the moment is an Amazon Simple Queue Service (SQS). If the queue is referenced by its name, then the caller is assumed to be the owner of the queue. The create queue API call is used to create the queue by name or return the queue if it already exists. When the queue is created, its default policy is overridden to allow the SNS ARN to send messages to the queue. Note that the documentation for SQS states that the policy may take up to 60 seconds to propagate although in practice it appears to be taking over 90 seconds. The result is that the SQS endpoint will not begin receiving messages until the policy is propagated.
 
 If the queue is references by its ARN then it is assumed that the queue exists and has sufficient permissions on it to receive messages from the topic.
 
@@ -54,7 +59,7 @@ The consumer will automatically unsubscribe from the topic once it is stopped.
 ==Topic/Queue deletion==
 The consumer will optionally delete the topic or queue when it is stopped. See the above for info on controlling this and other behavior with endpoint properties.
 
-==Message Format==
+==Message Mapping between SNS and Camel==
 The component will unwrap the message payload from its JSON format and put the message field into the camel message payload and add all of the other fields as headers prefixed with "SNS:". The available properties on the message are as follow:
 
 ||SNS:MessageId|| A Universally Unique Identifier, unique for each notification published||
