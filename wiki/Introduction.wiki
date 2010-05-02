@@ -32,11 +32,11 @@ sns://arn:aws:sns:us-east-1:266383121696:yourTopicName
 = Consumer Use Cases =
 
 == Subscribing to a topic ==
-|| *Topic* || *Subscription Endpoint* ||
-|| topic name || SQS name ||
-|| topic name || SQS ARN ||
-|| topic ARN || SQS name ||
-|| topic ARN || SQS ARN ||
+|| *Topic* || *Subscription Endpoint* || *Test Case* ||
+|| topic name || SQS name || [http://code.google.com/p/camel-sns/source/browse/trunk/camel-sns/src/test/java/com/massfords/aws/sns/SubscribeByTopicNameAndQueueNameTest.java SubscribeByTopicNameAndQueueNameTest.java] ||
+|| topic name || SQS ARN || [http://code.google.com/p/camel-sns/source/browse/trunk/camel-sns/src/test/java/com/massfords/aws/sns/SubscribeByTopicNameAndQueueArnTest.java SubscribeByTopicNameAndQueueArnTest.java] ||
+|| topic ARN || SQS name || [http://code.google.com/p/camel-sns/source/browse/trunk/camel-sns/src/test/java/com/massfords/aws/sns/SubscribeByTopicArnAndQueueNameTest.java SubscribeByTopicArnAndQueueNameTest.java] ||
+|| topic ARN || SQS ARN || [http://code.google.com/p/camel-sns/source/browse/trunk/camel-sns/src/test/java/com/massfords/aws/sns/SubscribeByTopicArnAndQueueArnTest.java SubscribeByTopicArnAndQueueArnTest.java] ||
 
 === Topic Permissions ===
 If the topic is referenced by its name then the caller is assumed to be the owner of the topic. The create topic API call is used to create the topic by name or return the topic if it already exists. 
