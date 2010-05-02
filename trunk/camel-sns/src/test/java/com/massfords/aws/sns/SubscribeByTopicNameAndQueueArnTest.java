@@ -4,16 +4,15 @@ import org.junit.Test;
 
 import com.massfords.aws.sns.SNSUri;
 
-public class SubscribeByTopicArnAndQueueArn extends AbstractUseCase {
+public class SubscribeByTopicNameAndQueueArnTest extends AbstractUseCase {
 
     @Test
     public void test() throws Exception {
         
-        // create the topic
-        String topicArn = createTopic();
+        // create the queue ARN
         String queueArn = createQueue();
 
-        SNSUri consumer = createUri().withTopicArn(topicArn).withQueueArn(queueArn);
+        SNSUri consumer = createUri().withTopicName(mTopicName).withQueueArn(queueArn);
         SNSUri producer = createUri().withTopicName(mTopicName);
         
         SnsTester tester = new SnsTester(consumer, producer, mContext)
@@ -22,7 +21,8 @@ public class SubscribeByTopicArnAndQueueArn extends AbstractUseCase {
                 .withAcceptedMessage("subject-1", "message body-1")
                 .withAcceptedMessage("subject-2", "message body-2")
                 .withPostSendDelay(OTHER_DELAY_MILLIS);
-        
+
         doTest(tester);
     }
+
 }

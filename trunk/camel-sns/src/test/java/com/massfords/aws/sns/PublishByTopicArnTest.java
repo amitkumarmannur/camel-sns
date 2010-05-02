@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import com.massfords.aws.sns.SNSUri;
 
-public class PublishByTopicArn extends AbstractUseCase {
+public class PublishByTopicArnTest extends AbstractUseCase {
     @Test
     public void test() throws Exception {
         

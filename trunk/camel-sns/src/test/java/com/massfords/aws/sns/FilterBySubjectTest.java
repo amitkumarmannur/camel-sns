@@ -5,7 +5,7 @@ import org.junit.Test;
 
 import com.massfords.aws.sns.SNSUri;
 
-public class FilterBySubject extends AbstractUseCase {
+public class FilterBySubjectTest extends AbstractUseCase {
     @Test
     public void test() throws Exception {
         
