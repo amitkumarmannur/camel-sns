@@ -1,4 +1,4 @@
-#summary List of the use cases that are supported
+#summary Overview of the basic functionality
 
 = Endpoint URI =
 {{{
