@@ -29,8 +29,8 @@ import com.massfords.aws.sns.support.SQSObject;
 import com.massfords.aws.sns.support.SQSTypeConverter;
 
 /**
- * Consumer subscribes to a topic (optionally creating it) and sends the messages it receives
- * as part of the subscription to the its processor.
+ * Consumer subscribes to a topic (optionally creating it) and sends the
+ * messages it receives as part of the subscription to the its processor.
  * 
  * @author markford
  */
@@ -48,10 +48,15 @@ public class SNSConsumer extends ScheduledPollConsumer {
                                          "Subject", 
                                          "Signature", 
                                          "SignatureVersion" };
-    
-    /** subscription arn is kept in order to unsubscribe when the consumer is stopped */
+
+    /**
+     * subscription arn is kept in order to unsubscribe when the consumer is
+     * stopped
+     */
     private String mSubscriptionArn;
-    /** Set of previously processed messages kept when the idempotent flag is set */
+    /**
+     * Set of previously processed messages kept when the idempotent flag is set
+     */
     private LinkedHashSet mAlreadyProcessed = new LinkedHashSet();
 
     public SNSConsumer(SNSEndpoint aEndpoint, Processor aProcessor) {
@@ -59,7 +64,7 @@ public class SNSConsumer extends ScheduledPollConsumer {
     }
 
     public void start() throws Exception {
-        
+
         sLog.debug("starting");
 
         SNSEndpoint endpoint = (SNSEndpoint) getEndpoint();
@@ -72,14 +77,14 @@ public class SNSConsumer extends ScheduledPollConsumer {
         // create the queue if it doesn't exist
         AmazonSQSClient qClient = AmazonClientFactory.createSQSClient(endpoint.getAccessKey(),
                 endpoint.getSecretKey());
-        
+
         if (endpoint.getQueueArn() == null) {
             sLog.debug("queueArn not set, creating queue from queue name");
             String queueURL = qClient.createQueue(
                     new CreateQueueRequest().withQueueName(endpoint.getQueueName())).getQueueUrl();
             endpoint.setQueueURL(queueURL);
             sLog.debug("queueURL=" + queueURL);
-    
+
             String queueArn = getQueueArn(qClient, queueURL);
             sLog.debug("queueArn=" + queueArn);
             endpoint.setQueueArn(queueArn);
@@ -107,7 +112,7 @@ public class SNSConsumer extends ScheduledPollConsumer {
 
         super.start();
     }
-    
+
     public void stop() throws Exception {
         if (this.isStopped()) {
             sLog.debug("consumer already stopped, why is this being called twice?");
@@ -116,14 +121,14 @@ public class SNSConsumer extends ScheduledPollConsumer {
         sLog.debug("stopping consumer...");
         SNSEndpoint endpoint = (SNSEndpoint) getEndpoint();
         endpoint.stop();
-        
+
         if (!endpoint.isDeleteTopicOnStop()) {
             sLog.debug("unsubscribing from topic");
             AmazonSNSClient client = AmazonClientFactory.createSNSClient(endpoint.getAccessKey(),
                     endpoint.getSecretKey());
             client.unsubscribe(new UnsubscribeRequest().withSubscriptionArn(mSubscriptionArn));
         }
-        
+
         super.stop();
     }
 
@@ -137,8 +142,7 @@ public class SNSConsumer extends ScheduledPollConsumer {
     protected static String getPolicy(String aTopicArn, String aQueueArn, String aQueueURL)
             throws Exception {
         // FIXME can make this more efficient
-        String s = IOUtils.toString(SNSConsumer.class.getResourceAsStream(
-                "/default-sqs-policy-template.json"));
+        String s = IOUtils.toString(SNSConsumer.class.getResourceAsStream("/default-sqs-policy-template.json"));
         s = s.replace("$SNS_ARN", aTopicArn);
         s = s.replace("$SQS_ARN", aQueueArn);
         s = s.replace("$SQS_URL", new URI(aQueueURL).getPath());
@@ -146,7 +150,7 @@ public class SNSConsumer extends ScheduledPollConsumer {
         s = s.replace("\r", " ");
         return s;
     }
-    
+
     protected boolean alreadyProcessed(String aMessageId) {
         boolean alreadyProcessed = !mAlreadyProcessed.add(aMessageId);
         if (mAlreadyProcessed.size() > 100) {
@@ -165,37 +169,50 @@ public class SNSConsumer extends ScheduledPollConsumer {
 
         AmazonSQSClient qClient = AmazonClientFactory.createSQSClient(endpoint.getAccessKey(),
                 endpoint.getSecretKey());
-        ReceiveMessageResult result = qClient.receiveMessage(new ReceiveMessageRequest().withQueueUrl(queueURL).withMaxNumberOfMessages(1));
+        ReceiveMessageResult result = qClient.receiveMessage(new ReceiveMessageRequest().withQueueUrl(
+                queueURL).withMaxNumberOfMessages(1));
         if (!result.getMessages().isEmpty()) {
 
             sLog.debug("received message");
 
             Message message = result.getMessages().get(0);
             String receiptHandle = message.getReceiptHandle();
-            
+
             String messageBody = message.getBody();
             SQSObject sqsObject = SQSTypeConverter.toSQSObject(messageBody);
 
-            String messageId = sqsObject.getMessageId();
-            if (endpoint.isIdempotent() & alreadyProcessed(messageId)) {
-                sLog.debug("message already processed and idempotent flag set, ignoring message");
-                return;
+            boolean verified = true;
+            if (endpoint.isVerify() && !verifyMessage(sqsObject)) {
+                sLog.debug("message failed verification, deleting");
+                verified = false;
             }
 
-            Exchange exchange = endpoint.createExchange(ExchangePattern.InOnly);
-            if (sLog.isTraceEnabled())
-                sLog.trace(sqsObject.toString());
-            org.apache.camel.Message camelMessage = exchange.getIn();
-            camelMessage.setBody(sqsObject.getMessage());
-            for(String header : HEADERS) {
-                camelMessage.setHeader("SNS:" + header, sqsObject.getString(header));
+            if (verified) {
+                String messageId = sqsObject.getMessageId();
+                if (endpoint.isIdempotent() & alreadyProcessed(messageId)) {
+                    sLog.debug("message already processed and idempotent flag set, ignoring message");
+                    return;
+                }
+    
+                Exchange exchange = endpoint.createExchange(ExchangePattern.InOnly);
+                if (sLog.isTraceEnabled())
+                    sLog.trace(sqsObject.toString());
+                org.apache.camel.Message camelMessage = exchange.getIn();
+                camelMessage.setBody(sqsObject.getMessage());
+                for (String header : HEADERS) {
+                    camelMessage.setHeader("SNS:" + header, sqsObject.getString(header));
+                }
+    
+                getProcessor().process(exchange);
             }
-
-            getProcessor().process(exchange);
 
             qClient.deleteMessage(new DeleteMessageRequest().withQueueUrl(queueURL).withReceiptHandle(
                     receiptHandle));
         }
+    }
+
+    public static boolean verifyMessage(SQSObject aSqsObject) throws Exception {
+        return SQSTypeConverter.verify(aSqsObject);
     }
 
     protected String getSubscriptionArn() {

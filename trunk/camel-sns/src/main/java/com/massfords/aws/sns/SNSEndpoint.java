@@ -31,6 +31,7 @@ public class SNSEndpoint extends ScheduledPollEndpoint {
     private boolean mDeleteTopicOnStop;
     private boolean mDeleteQueueOnStop;
     private boolean mIdempotent;
+    private boolean mVerify;
     
     public SNSEndpoint(String aUri, CamelContext aContext) {
         super(aUri, aContext);
@@ -199,6 +200,14 @@ public class SNSEndpoint extends ScheduledPollEndpoint {
 
     public void setIdempotent(boolean aIdempotent) {
         mIdempotent = aIdempotent;
+    }
+
+    public boolean isVerify() {
+        return mVerify;
+    }
+
+    public void setVerify(boolean aVerify) {
+        mVerify = aVerify;
     }
 
 }
