@@ -142,7 +142,6 @@ public class SNSConsumer extends ScheduledPollConsumer {
         s = s.replace("$SNS_ARN", aTopicArn);
         s = s.replace("$SQS_ARN", aQueueArn);
         s = s.replace("$SQS_URL", new URI(aQueueURL).getPath());
-        System.out.println("policy=\n" + s);
         s = s.replace("\n", " ");
         s = s.replace("\r", " ");
         return s;
