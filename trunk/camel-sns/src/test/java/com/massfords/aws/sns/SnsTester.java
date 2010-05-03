@@ -8,14 +8,33 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.camel.CamelContext;
-import org.apache.camel.ProducerTemplate;
+import org.apache.camel.Exchange;
+import org.apache.camel.ExchangePattern;
+import org.apache.camel.Message;
+import org.apache.camel.Producer;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 
-import com.massfords.aws.sns.SNSEndpoint;
-import com.massfords.aws.sns.SNSUri;
-
-class SnsTester {
+/**
+ * Helper class for testing the producing and consuming messages on the topic. 
+ * 
+ * The class is configured with a URI for the subscription and another for producing 
+ * messages. The callers add messages that should be sent and also indicate whether
+ * the message should be received by the subscription or filtered out. The route
+ * to use for the test is also configurable with the default route being one 
+ * without any filtering.
+ * 
+ * There are three points in the test process that have the possibility for introducing
+ * a delay (Thread.sleep). The main purpose for this delay is to allow for changes made
+ * to a SQS policy to propagate. For example, there is a 90+ second delay on setting the
+ * policy on a queue and having it take effect. The points for a delay are as follows:
+ * - pre start: sleep before starting the context
+ * - post start: sleep after starting the context
+ * - post send: sleep after sending the messages
+ * 
+ * @author markford
+ */
+public class SnsTester {
     
     long mPreStartDelay;
     long mPostStartDelay;
@@ -135,13 +154,18 @@ class SnsTester {
         mRouteBuilder = aRouteBuilder;
     }
 
-    private void sendBodies() {
-        ProducerTemplate producer = mContext.createProducerTemplate();
+    private void sendBodies() throws Exception {
+        SNSEndpoint endpoint = (SNSEndpoint) mContext.getEndpoint(mProducerUri.toString());
+        Producer producer = endpoint.createProducer();
+        producer.start();
+        
         for(Iterator it = getMessages(); it.hasNext();) {
-            String[] message = (String[]) it.next();
-            SNSUri uri = new SNSUri(mProducerUri);
-            uri.withProperty("subject", message[0]);
-            producer.sendBody(uri.toString(), message[1]);
+            Exchange exchange = producer.createExchange(ExchangePattern.InOnly);
+            Message message = exchange.getIn();
+            String[] messageData = (String[]) it.next();
+            message.setHeader("SNS:Subject", messageData[0]);
+            message.setBody(messageData[1]);
+            producer.process(exchange);
         }
     }
 

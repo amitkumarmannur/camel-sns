@@ -66,8 +66,6 @@ public class SNSEndpoint extends ScheduledPollEndpoint {
                 
                 String topic = topicArn.substring(topicArn.lastIndexOf('/') + 1);
                 
-                System.out.println("creating topic with name:" + topic);
-                
                 sLog.debug("creating a new topic by name:" + topic);
 
                 AmazonSNSClient client = AmazonClientFactory.createSNSClient(getAccessKey(), getSecretKey());

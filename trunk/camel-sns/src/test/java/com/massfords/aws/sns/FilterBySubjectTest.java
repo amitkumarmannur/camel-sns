@@ -22,7 +22,7 @@ public class FilterBySubjectTest extends AbstractUseCase {
                 .withFilteredMessage("also filtered", "message body-4")
                 .withAcceptedMessage("ok-subject", "message body-5")
                 .withAcceptedMessage("ok-subject", "message body-6")
-                .withPostSendDelay(OTHER_DELAY_MILLIS);
+                .withPostSendDelay(OTHER_DELAY_MILLIS * 2);
         
         tester.setRouteBuilder(new RouteBuilder() {
 

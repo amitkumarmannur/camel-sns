@@ -23,7 +23,9 @@ public class SNSProducer extends DefaultProducer {
         SNSEndpoint endpoint = (SNSEndpoint) getEndpoint();
         
         String topicArn = endpoint.getTopicArn();
-        String subject = endpoint.getSubject();
+        String subject = (String) aExchange.getIn().getHeader("SNS:Subject");
+        if (subject == null)
+            subject = endpoint.getSubject();
         String message = aExchange.getIn().getBody(String.class);
         
         if (sLog.isDebugEnabled())

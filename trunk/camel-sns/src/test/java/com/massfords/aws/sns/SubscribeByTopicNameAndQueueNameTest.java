@@ -4,6 +4,14 @@ import org.junit.Test;
 
 import com.massfords.aws.sns.SNSUri;
 
+/**
+ * Tests subscribing to a topic by name and registering an SQS queue for the
+ * notification by name.
+ * 
+ * Sample uri: sns://topicName/testTopic?queueName=testQueue
+ * 
+ * @author markford
+ */
 public class SubscribeByTopicNameAndQueueNameTest extends AbstractUseCase {
 
     @Test
