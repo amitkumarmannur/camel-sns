@@ -16,7 +16,7 @@ public class SQSObject {
     public String getTimestamp() {
         return getString("Timestamp");
     }
-    public String getTopic() {
+    public String getTopicArn() {
         return getString("TopicArn");
     }
     public String getType() {
