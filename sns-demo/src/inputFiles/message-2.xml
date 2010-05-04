@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Order>
+    <OrderId>100-2</OrderId>
+    <PO>88334</PO>
+    <Items>
+        <Item>
+            <Name>Widget 1</Name>
+            <Quantity>20</Quantity>
+            <Cost>200</Cost>
+        </Item>
+        <Item>
+            <Name>Widget 2</Name>
+            <Quantity>20</Quantity>
+            <Cost>550</Cost>
+        </Item>
+    </Items>
+    <Total>750</Total>
+    <Priority>Standard</Priority>
+</Order>
