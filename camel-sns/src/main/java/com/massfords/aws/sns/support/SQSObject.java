@@ -1,9 +1,13 @@
 package com.massfords.aws.sns.support;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class SQSObject {
+    
+    Log sLog = LogFactory.getLog(SQSObject.class);
     
     JSONObject mJO;
     
@@ -49,7 +53,7 @@ public class SQSObject {
         try {
             return mJO.getString(prop);
         } catch (JSONException e) {
-            e.printStackTrace();
+            sLog.trace("field not found", e);
             return "";
         }
     }
