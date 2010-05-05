@@ -2,6 +2,8 @@ package com.massfords.aws.sns;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
@@ -22,35 +24,37 @@ public class SnsDemo {
         mCredentials = aCredentials;
     }
     
-    public void runDemo(final String aQueueArnPrefix, final File aInputDir, final File aOutputDir) throws Exception {
+    public void runDemo(final File aInputDir, final File aOutputDir) throws Exception {
         
+        final String outputFilesUri = aOutputDir.getAbsoluteFile().toURI().toString();
+        final String inputFilesUri = aInputDir.getAbsoluteFile().toURI() + "?noop=true&initialDelay=2000";
+
         final SNSUri toEndpoint = new SNSUri(mCredentials)
             .withTopicName("final-project-topic");
         
         final SNSUri fromEndpoint_noFilter = new SNSUri(mCredentials)
             .withTopicName("final-project-topic")
-            .withQueueArn(aQueueArnPrefix + "final-project-queue-noFilter");
+            .withQueueName("final-project-queue-noFilter");
 
         final SNSUri fromEndpoint_filterHeader = new SNSUri(mCredentials)
         .withTopicName("final-project-topic")
-        .withQueueArn(aQueueArnPrefix + "final-project-queue-filterHeader");
+        .withQueueName("final-project-queue-filterHeader");
 
         final SNSUri fromEndpoint_filterBody = new SNSUri(mCredentials)
         .withTopicName("final-project-topic")
-        .withQueueArn(aQueueArnPrefix + "final-project-queue-filterBody");
+        .withQueueName("final-project-queue-filterBody");
 
         CamelContext context = new DefaultCamelContext();
         context.addRoutes(new RouteBuilder() {
 
             public void configure() throws Exception {
                 
-                String inputFilesUri = aInputDir.getAbsoluteFile().toURI() + "?noop=true&initialDelay=2000";
+                // setup route to read files from directory and place on topic
                 from(inputFilesUri)
                     .process(new FilenameAsSubject())
                     .to(toEndpoint.toString());
                 
                 // read w/o any filters
-                String outputFilesUri = aOutputDir.getAbsoluteFile().toURI().toString();
                 from(fromEndpoint_noFilter.toString())
                     .process(new SubjectAsFilename("no-filter-"))
                     .to(outputFilesUri);
@@ -90,6 +94,11 @@ public class SnsDemo {
         }
     }
     
+    /**
+     * Custom processor that uses the subject from the SNS notification as the filename
+     * 
+     * @author markford
+     */
     private static class SubjectAsFilename implements Processor {
         
         private String mPrefix;
@@ -104,6 +113,11 @@ public class SnsDemo {
         }
     }
     
+    /**
+     * Custom processor that uses the filename as the subject of the notification
+     * 
+     * @author markford
+     */
     private static class FilenameAsSubject implements Processor {
 
         public void process(Exchange aExchange) throws Exception {
@@ -115,14 +129,18 @@ public class SnsDemo {
     public static void main(String[] args) throws Exception {
         
         PropertyConfigurator.configure(SnsDemo.class.getResource("/log4j.properties"));
-
-        SnsDemo demo = new SnsDemo(new BasicAWSCredentials(System.getProperty("accessKey"), System.getProperty("secretKey")));
-        demo.runDemo("arn:aws:sqs:us-east-1:266383121696:", new File("src/inputFiles"), new File("target/outputFiles/"));
         
-        // test-1: route w/o filter
+        Map<String,String> props = new HashMap();
+        for(int i=0; i<args.length; i+=2) {
+            String key = args[i];
+            String value = args[i+1];
+            props.put(key, value);
+        }
         
-        // test-2: route w/ header filter
+        String accessKey = props.get("--access-key");
+        String secretKey = props.get("--secret-key");
         
-        // test-3: route w/ header and body filter
+        SnsDemo demo = new SnsDemo(new BasicAWSCredentials(accessKey, secretKey));
+        demo.runDemo(new File("inputFiles"), new File("outputFiles"));
     }
 }
