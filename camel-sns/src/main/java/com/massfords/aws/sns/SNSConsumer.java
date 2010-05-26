@@ -63,11 +63,20 @@ public class SNSConsumer extends ScheduledPollConsumer {
         super(aEndpoint, aProcessor);
     }
 
+    @Override
+    public String toString() {
+        return "Consumer[" + SNSEndpoint.stripCredentials(getEndpoint().getEndpointUri()) + "]";
+    }
+
+    public SNSEndpoint getEndpoint() {
+        return (SNSEndpoint) super.getEndpoint();
+    }
+
     public void start() throws Exception {
 
         sLog.debug("starting");
 
-        SNSEndpoint endpoint = (SNSEndpoint) getEndpoint();
+        SNSEndpoint endpoint = getEndpoint();
 
         AmazonSNSClient client = AmazonClientFactory.createSNSClient(endpoint.getAccessKey(),
                 endpoint.getSecretKey());

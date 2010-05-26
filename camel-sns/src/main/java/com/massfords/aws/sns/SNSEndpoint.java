@@ -1,12 +1,14 @@
 package com.massfords.aws.sns;
 
 import java.net.URI;
+import java.util.concurrent.ExecutorService;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.Consumer;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
 import org.apache.camel.impl.ScheduledPollEndpoint;
+import org.apache.camel.util.concurrent.ExecutorServiceHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -38,10 +40,25 @@ public class SNSEndpoint extends ScheduledPollEndpoint {
     }
 
     public Consumer createConsumer(Processor aProcessor) throws Exception {
-        sLog.debug("creating consumer for endpoint:" + getEndpointUri());
+        sLog.debug("creating consumer for endpoint:" + stripCredentials(getEndpointUri()));
         SNSConsumer consumer = new SNSConsumer(this, aProcessor);
         configureConsumer(consumer);
         return consumer;
+    }
+
+    @Override
+    public String toString() {
+        return "Endpoint[" + stripCredentials(getEndpointUri()) + "]";
+    }
+    
+    @Override
+    public synchronized ExecutorService getExecutorService() {
+        return ExecutorServiceHelper.newScheduledThreadPool(10, stripCredentials(getEndpointUri()), true);
+    }
+
+    protected static String stripCredentials(String aUri) {
+        return aUri.replaceAll("(accessKey=)[A-Za-z0-9]+", "$1hidden")
+                   .replaceAll("(secretKey=)[A-Za-z0-9]+", "$1hidden");
     }
     
     protected String createEndpointUri() {
