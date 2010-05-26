@@ -155,6 +155,8 @@ public class SnsTester {
     }
 
     private void sendBodies() throws Exception {
+        if (mProducerUri == null)
+            return;
         SNSEndpoint endpoint = (SNSEndpoint) mContext.getEndpoint(mProducerUri.toString());
         Producer producer = endpoint.createProducer();
         producer.start();

@@ -39,4 +39,12 @@ public class SNSEndpointTest {
         String actual = SNSEndpoint.toQueueURL(queueARN);
         assertEquals(expectedURL, actual);
     }
+    
+    @Test
+    public void stripCreds() throws Exception {
+        String endpointURI = "sns:topicName/myTopic?someParam=foo&accessKey=SOMEACCESSKEY&secretKey=SomeAcessKey";
+        String expected = "sns:topicName/myTopic?someParam=foo&accessKey=hidden&secretKey=hidden";
+        String actual = SNSEndpoint.stripCredentials(endpointURI);
+        assertEquals(expected, actual);
+    }
 }
