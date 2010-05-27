@@ -65,6 +65,12 @@
    </dependencies>
    <description>Camel component that provides an endpoints for publishing and subscribing to Amazon Simple Notification Service topics.</description>
    <build>
+    <testResources>
+        <testResource>
+            <directory>src/test/resources</directory>
+            <filtering>true</filtering>
+        </testResource>
+    </testResources>
       <plugins>
          <plugin>
             <artifactId>maven-compiler-plugin</artifactId>

@@ -1,10 +1,7 @@
 package com.massfords.aws.sns;
 
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -50,13 +47,11 @@ public abstract class AbstractUseCase {
     @Before
     public void setUp() throws Exception {
         Properties props = new Properties();
-        File awsCredsFile = new File(System.getProperty("user.home"), "awscreds.properties");
-        assertTrue("awscreds.properties file must exist in home directory for unit tests", awsCredsFile.isFile() && awsCredsFile.canRead());
-        props.load(new FileReader(awsCredsFile));
-        String accessKey = props.getProperty("accessKey"); //System.getProperty("accessKey");
-        String secretKey = props.getProperty("secretKey"); //System.getProperty("secretKey");
-        assertNotNull("accessKey must be provided as an environment variable", accessKey);
-        assertNotNull("secretKey must be provided as an environment variable", secretKey);
+        props.load(getClass().getResourceAsStream("/awscreds.properties"));
+        String accessKey = props.getProperty("accessKey");
+        String secretKey = props.getProperty("secretKey");
+        assertNotNull("accessKey must be provided as an environment variable or configured in awscreds.properties", accessKey);
+        assertNotNull("secretKey must be provided as an environment variable or configured in awscreds.properties", secretKey);
         mCredentials = new BasicAWSCredentials(accessKey, secretKey);
         mClient = AmazonClientFactory.createSNSClient(mCredentials);
         mQClient = AmazonClientFactory.createSQSClient(mCredentials);
