@@ -3,11 +3,11 @@
    <groupId>com.massfords.aws.sns</groupId>
    <artifactId>camel-sns</artifactId>
    <name>Amazon Simple Notification Service Camel Component</name>
-   <version>1.0</version>
+   <version>1.1-SNAPSHOT</version>
    <scm>
-      <connection>scm:svn:http://camel-sns.googlecode.com/svn/tags/camel-sns-1.0</connection>
-      <developerConnection>scm:svn:https://camel-sns.googlecode.com/svn/tags/camel-sns-1.0</developerConnection>
-      <url>http://camel-sns.googlecode.com/svn/tags/camel-sns-1.0</url>
+      <connection>scm:svn:http://camel-sns.googlecode.com/svn/trunk/camel-sns</connection>
+      <developerConnection>scm:svn:https://camel-sns.googlecode.com/svn/trunk/camel-sns</developerConnection>
+      <url>http://camel-sns.googlecode.com/svn/trunk/camel-sns</url>
    </scm>
    <dependencies>
       <dependency>
