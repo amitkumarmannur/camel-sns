@@ -62,8 +62,10 @@ public class SQSTypeConverter {
         }
 
         // FIXME replace with commons-io
-        byte[] decoded = decode(aMessage);
-        JSONObject json = new JSONObject(new String(decoded, "UTF-8"));
+//        byte[] decoded = decode(aMessage);
+//        JSONObject json = new JSONObject(new String(decoded, "UTF-8"));
+        
+        JSONObject json = new JSONObject(aMessage);
 
         SQSObject sqsObject = new SQSObject(json);
 
