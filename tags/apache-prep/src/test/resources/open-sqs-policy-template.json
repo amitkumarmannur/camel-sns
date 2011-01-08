@@ -1,0 +1,13 @@
+{ 
+    "Version":"2008-10-17", 
+    "Id":"$SQS_ARN/policyId", 
+    "Statement": [ 
+        { 
+            "Sid":"$SQS_ARN/statementId", 
+            "Effect":"Allow", 
+            "Principal":{"AWS":"*"}, 
+            "Action":"SQS:SendMessage", 
+            "Resource": "$SQS_ARN" 
+        } 
+    ] 
+} 
