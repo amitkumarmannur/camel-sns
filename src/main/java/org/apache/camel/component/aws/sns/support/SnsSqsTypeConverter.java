@@ -61,9 +61,6 @@ public class SnsSqsTypeConverter {
             LOG.debug("raw SQSMessage: " + aMessage.toString());
         }
 
-        // FIXME replace with commons-io
-//        byte[] decoded = decode(aMessage);
-//        JSONObject json = new JSONObject(new String(decoded, "UTF-8"));
         JSONObject json = new JSONObject(aMessage);
 
         SnsSqsObject snsSqsObject = new SnsSqsObject(json);

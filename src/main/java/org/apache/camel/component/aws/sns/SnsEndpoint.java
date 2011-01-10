@@ -17,14 +17,12 @@
 package org.apache.camel.component.aws.sns;
 
 import java.net.URI;
-import java.util.concurrent.ExecutorService;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.Consumer;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
 import org.apache.camel.impl.ScheduledPollEndpoint;
-import org.apache.camel.util.concurrent.ExecutorServiceHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -67,11 +65,6 @@ public class SnsEndpoint extends ScheduledPollEndpoint {
     @Override
     public String toString() {
         return "Endpoint[" + stripCredentials(getEndpointUri()) + "]";
-    }
-    
-    @Override
-    public synchronized ExecutorService getExecutorService() {
-        return ExecutorServiceHelper.newScheduledThreadPool(10, stripCredentials(getEndpointUri()), true);
     }
 
     protected static String stripCredentials(String aUri) {
@@ -119,7 +112,7 @@ public class SnsEndpoint extends ScheduledPollEndpoint {
         return mTopicArn;
     }
     
-    protected void stop() {
+    public void stop() {
         sLog.debug("stopping endpoint");
         if (isDeleteTopicOnStop()) {
             try {

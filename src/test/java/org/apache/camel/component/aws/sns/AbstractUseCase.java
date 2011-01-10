@@ -71,7 +71,6 @@ public abstract class AbstractUseCase {
             accessKey = System.getenv("accessKey");
             secretKey = System.getenv("secretKey");
         }
-        System.out.println("------------- " + accessKey);
         assertNotNull("accessKey must be provided as an environment variable or configured in awscreds.properties", accessKey);
         assertNotNull("secretKey must be provided as an environment variable or configured in awscreds.properties", secretKey);
         mCredentials = new BasicAWSCredentials(accessKey, secretKey);
