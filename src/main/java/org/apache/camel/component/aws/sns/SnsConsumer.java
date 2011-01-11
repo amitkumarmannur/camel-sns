@@ -203,7 +203,7 @@ public class SnsConsumer extends ScheduledPollConsumer {
         SnsEndpoint endpoint = (SnsEndpoint) getEndpoint();
         String queueURL = endpoint.getQueueURL();
 
-        sLog.debug("polling queue...");
+        sLog.trace("polling queue...");
 
         AmazonSQSClient qClient = AmazonClientFactory.createSQSClient(endpoint.getAccessKey(),
                 endpoint.getSecretKey());

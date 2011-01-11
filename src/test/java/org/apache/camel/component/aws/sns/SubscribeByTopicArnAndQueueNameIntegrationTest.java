@@ -16,22 +16,32 @@
  */
 package org.apache.camel.component.aws.sns;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Test;
 
-public class DeleteQueueOnStopTest extends DeleteUseCase {
+public class SubscribeByTopicArnAndQueueNameIntegrationTest extends AbstractUseCase {
 
+    /**
+     * Create a topic in advance and then start the route with a queue name. The consumer
+     * will use the existing topic and will create a queue and modify its policy. 
+     * 
+     * @throws Exception
+     */
     @Test
     public void test() throws Exception {
         
-        SnsUri consumer = createUri().withTopicName(mTopicName).withQueueName(mQueueName).withDeleteQueueOnStop(true);
+        // create the topic
+        String topicArn = createTopic();
 
-        startAndStopRoute(consumer);
-
-        assertFalse("Topic should not have been deleted when consumer stopped", topicDeleted());
+        SnsUri consumer = createUri().withTopicArn(topicArn).withQueueName(mQueueName);
+        SnsUri producer = createUri().withTopicName(mTopicName);
         
-        assertTrue("Queue should have been deleted when consumer stopped", queueDeleted());
+        SnsTester tester = new SnsTester(consumer, producer, mContext)
+                .withPreStartDelay(0)
+                .withPostStartDelay(POLICY_DELAY_MILLIS)
+                .withAcceptedMessage("subject-1", "message body-1")
+                .withAcceptedMessage("subject-2", "message body-2")
+                .withPostSendDelay(OTHER_DELAY_MILLIS);
+        
+        doTest(tester);
     }
 }

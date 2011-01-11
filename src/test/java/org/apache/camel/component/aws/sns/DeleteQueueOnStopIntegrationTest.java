@@ -21,18 +21,17 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-public class DeleteTopicOnStopTest extends DeleteUseCase {
+public class DeleteQueueOnStopIntegrationTest extends DeleteUseCase {
 
     @Test
     public void test() throws Exception {
         
-        SnsUri consumer = createUri().withTopicName(mTopicName).withQueueName(mQueueName).withDeleteTopicOnStop(true);
-        
+        SnsUri consumer = createUri().withTopicName(mTopicName).withQueueName(mQueueName).withDeleteQueueOnStop(true);
+
         startAndStopRoute(consumer);
 
-        assertTrue("Topic should have been deleted when consumer stopped", topicDeleted());
+        assertFalse("Topic should not have been deleted when consumer stopped", topicDeleted());
         
-        assertFalse("Queue should not have been deleted when consumer stopped", queueDeleted());
+        assertTrue("Queue should have been deleted when consumer stopped", queueDeleted());
     }
-
 }
