@@ -16,27 +16,23 @@
  */
 package org.apache.camel.component.aws.sns;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 
-public class SubscribeByTopicNameAndQueueArnTest extends AbstractUseCase {
+public class DeleteTopicOnStopIntegrationTest extends DeleteUseCase {
 
     @Test
     public void test() throws Exception {
         
-        // create the queue ARN
-        String queueArn = createQueue();
-
-        SnsUri consumer = createUri().withTopicName(mTopicName).withQueueArn(queueArn);
-        SnsUri producer = createUri().withTopicName(mTopicName);
+        SnsUri consumer = createUri().withTopicName(mTopicName).withQueueName(mQueueName).withDeleteTopicOnStop(true);
         
-        SnsTester tester = new SnsTester(consumer, producer, mContext)
-                .withPreStartDelay(POLICY_DELAY_MILLIS)
-                .withPostStartDelay(OTHER_DELAY_MILLIS)
-                .withAcceptedMessage("subject-1", "message body-1")
-                .withAcceptedMessage("subject-2", "message body-2")
-                .withPostSendDelay(OTHER_DELAY_MILLIS);
+        startAndStopRoute(consumer);
 
-        doTest(tester);
+        assertTrue("Topic should have been deleted when consumer stopped", topicDeleted());
+        
+        assertFalse("Queue should not have been deleted when consumer stopped", queueDeleted());
     }
 
 }

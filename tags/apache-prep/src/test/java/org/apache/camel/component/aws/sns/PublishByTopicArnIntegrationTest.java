@@ -18,21 +18,15 @@ package org.apache.camel.component.aws.sns;
 
 import org.junit.Test;
 
-/**
- * Tests subscribing to a topic by name and registering an SQS queue for the
- * notification by name.
- * 
- * Sample uri: sns://topicName/testTopic?queueName=testQueue
- * 
- * @author markford
- */
-public class SubscribeByTopicNameAndQueueNameTest extends AbstractUseCase {
-
+public class PublishByTopicArnIntegrationTest extends AbstractUseCase {
     @Test
     public void test() throws Exception {
         
-        SnsUri consumer = createUri().withTopicName(mTopicName).withQueueName(mQueueName);
-        SnsUri producer = createUri().withTopicName(mTopicName);
+        String topicArn = createTopic();
+
+        SnsUri consumer = createUri().withTopicArn(topicArn).withQueueName(mQueueName);
+
+        SnsUri producer = new SnsUri(mCredentials).withTopicArn(topicArn);
         
         SnsTester tester = new SnsTester(consumer, producer, mContext)
                 .withPreStartDelay(0)
@@ -42,5 +36,6 @@ public class SubscribeByTopicNameAndQueueNameTest extends AbstractUseCase {
                 .withPostSendDelay(OTHER_DELAY_MILLIS);
         
         doTest(tester);
+        
     }
 }

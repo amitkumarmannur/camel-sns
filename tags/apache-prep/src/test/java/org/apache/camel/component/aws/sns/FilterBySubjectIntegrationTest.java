@@ -19,7 +19,7 @@ package org.apache.camel.component.aws.sns;
 import org.apache.camel.builder.RouteBuilder;
 import org.junit.Test;
 
-public class FilterBySubjectTest extends AbstractUseCase {
+public class FilterBySubjectIntegrationTest extends AbstractUseCase {
     @Test
     public void test() throws Exception {
         

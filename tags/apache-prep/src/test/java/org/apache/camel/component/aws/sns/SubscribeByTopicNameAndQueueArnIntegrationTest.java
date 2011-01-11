@@ -18,16 +18,15 @@ package org.apache.camel.component.aws.sns;
 
 import org.junit.Test;
 
-public class SubscribeByTopicArnAndQueueArnTest extends AbstractUseCase {
+public class SubscribeByTopicNameAndQueueArnIntegrationTest extends AbstractUseCase {
 
     @Test
     public void test() throws Exception {
         
-        // create the topic
-        String topicArn = createTopic();
+        // create the queue ARN
         String queueArn = createQueue();
 
-        SnsUri consumer = createUri().withTopicArn(topicArn).withQueueArn(queueArn);
+        SnsUri consumer = createUri().withTopicName(mTopicName).withQueueArn(queueArn);
         SnsUri producer = createUri().withTopicName(mTopicName);
         
         SnsTester tester = new SnsTester(consumer, producer, mContext)
@@ -36,7 +35,8 @@ public class SubscribeByTopicArnAndQueueArnTest extends AbstractUseCase {
                 .withAcceptedMessage("subject-1", "message body-1")
                 .withAcceptedMessage("subject-2", "message body-2")
                 .withPostSendDelay(OTHER_DELAY_MILLIS);
-        
+
         doTest(tester);
     }
+
 }
